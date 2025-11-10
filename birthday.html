@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday to the Prince of My Heart</title>
+
+<style>
+  body {
+    background: radial-gradient(circle at top, #3e2723, #1b0000);
+    color: #fff5e6;
+    font-family: 'Dancing Script', cursive;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: 2.5em;
+    margin-top: 40px;
+    color: #ffd6a5;
+    text-shadow: 0 0 10px #ffb74d;
+  }
+
+  .cake {
+    position: relative;
+    width: 400px;
+    height: 250px;
+    margin: 60px auto;
+    background: #4e342e;
+    border-radius: 0 0 40px 40px;
+    box-shadow: 0 10px 0 #3e2723;
+  }
+
+  .top {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: #5d4037;
+    border-radius: 50%;
+    box-shadow: inset 0 -15px 0 #3e2723;
+  }
+
+  .candle {
+    position: absolute;
+    bottom: 200px;
+    width: 10px;
+    height: 40px;
+    background: #ffb300;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .flame {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    width: 10px;
+    height: 15px;
+    background: radial-gradient(ellipse at center, #ffeb3b 0%, #ff9800 70%);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    animation: flicker 0.3s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    50% { transform: translateX(-50%) scale(1.2); opacity: 0.8; }
+  }
+
+  .hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .heart {
+    position: absolute;
+    color: #ff8a80;
+    font-size: 20px;
+    animation: float 6s linear infinite;
+  }
+
+  @keyframes float {
+    from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    30% { opacity: 1; }
+    to { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+
+  #finalMessage {
+    display: none;
+    font-size: 1.8em;
+    color: #ffcdd2;
+    text-shadow: 0 0 15px #ff4081;
+    margin-top: 30px;
+  }
+
+  audio {
+    display: none;
+  }
+</style>
+</head>
+
+<body>
+  <h1>Happy Birthday to the Prince of My Heart</h1>
+
+  <div class="cake">
+    <div class="top"></div>
+  </div>
+
+  <div id="finalMessage">You are my light, even when the candles go out ❤️</div>
+  <div class="hearts"></div>
+
+  <audio id="song" controls autoplay loop>
+    <!-- 🩷 Replace the src link below with a legal source or your local file -->
+    <source src="nefsy_ahebak.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+
+<script>
+  const cake = document.querySelector('.cake');
+  const totalCandles = 27;
+
+  // Generate candles dynamically
+  for (let i = 0; i < totalCandles; i++) {
+    const candle = document.createElement('div');
+    candle.classList.add('candle');
+    candle.style.left = (10 + i * (380 / totalCandles)) + 'px';
+    const flame = document.createElement('div');
+    flame.classList.add('flame');
+    candle.appendChild(flame);
+    cake.appendChild(candle);
+
+    candle.addEventListener('click', () => {
+      flame.remove();
+      checkAllOff();
+    });
+  }
+
+  // Add floating hearts animation
+  const hearts = document.querySelector('.hearts');
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.textContent = '❤️';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+    hearts.appendChild(heart);
+    setTimeout(() => heart.remove(), 6000);
+  }
+  setInterval(createHeart, 600);
+
+  // Microphone detection to blow candles
+  async function enableMic() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      source.connect(analyser);
+      const dataArray = new Uint8Array(analyser.fftSize);
+
+      function detectBlow() {
+        analyser.getByteTimeDomainData(dataArray);
+        const volume = dataArray.reduce((a, b) => a + Math.abs(b - 128), 0) / dataArray.length;
+        if (volume > 15) blowCandles();
+        requestAnimationFrame(detectBlow);
+      }
+      detectBlow();
+    } catch (err) {
+      console.log('Microphone not available.');
+    }
+  }
+
+  enableMic();
+
+  function blowCandles() {
+    const flames = document.querySelectorAll('.flame');
+    if (flames.length > 0) {
+      flames[0].remove();
+      checkAllOff();
+    }
+  }
+
+  function checkAllOff() {
+    if (document.querySelectorAll('.flame').length === 0) {
+      document.getElementById('finalMessage').style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>
